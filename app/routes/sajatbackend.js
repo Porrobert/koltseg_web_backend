@@ -39,6 +39,21 @@ module.exports = function(app) {
       
       connection.end()
    })
+   
+   app.post('/kereses', (req, res) => {
+  
+    kapcsolat()
+    let kereso='SELECT * FROM kiadas WHERE kiadas_nev LIKE "%'+req.body.bevitel1+'%"'
+    connection.query( kereso, (err, rows, fields) => {
+      if (err) 
+          console.log( err)
+        else{
+        res.send(rows)}
+        
+      })
+    
+    connection.end()
+  })
 
    app.get('/kiadas', (req, res) => {
     
@@ -129,6 +144,31 @@ app.post('/felvitel', (req, res) => {
   
   connection.end()
 })
+/*app.post('/felvitel2', (req, res) => {
+
+  var mysql = require('mysql')
+  var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'koltsegvetes_pr'
+  })
+  
+  connection.connect()
+  
+  connection.query("INSERT INTO bevetel  VALUES (NULL, "+req.body.bevitel1+", "+req.body.bevitel2+", '"+req.body.bevitel3+"')", function (err, rows, fields) {
+    if (err) 
+      console.log( err)
+    else{
+    console.log("Sikeres felvitel!")
+    res.send("Sikeres felvitel!")}
+    
+  })
+  
+  connection.end()
+
+  
+})*/
 
 app.delete('/torles', (req, res) => {
   
@@ -217,7 +257,27 @@ app.get('/osszegzes', (req, res) => {
           
           connection.connect()
           
-          connection.query('SELECT * from bevetel_cs', (err, rows, fields) => {
+          connection.query('SELECT * from bevetel', (err, rows, fields) => {
+            if (err) throw err
+          
+            res.send(rows)
+          })
+          
+          connection.end()
+        })
+
+        app.get('/bevetelfizetes', (req, res) => {
+          const mysql = require('mysql')
+          const connection = mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: '',
+            database: 'koltsegvetes_pr'
+          })
+          
+          connection.connect()
+          
+          connection.query('SELECT SUM(bevetel_osszeg) as osszeg2 FROM bevetel', (err, rows, fields) => {
             if (err) throw err
           
             res.send(rows)
@@ -255,7 +315,7 @@ app.get('/osszegzes', (req, res) => {
           })
           
           connection.connect()
-          connection.query('delete from bevetel_cs where bevetel_id= '+req.body.bevitel1, (err, rows, fields) => {
+          connection.query('delete from bevetel where bevetel_id= '+req.body.bevitel1, (err, rows, fields) => {
             if (err) console.log(err)
           else
           res.send("Sikerült a törlés")
